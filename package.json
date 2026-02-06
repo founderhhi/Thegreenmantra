@@ -1,0 +1,31 @@
+{
+  "name": "site-mirage",
+  "version": "1.0.0",
+  "description": "The Green Mantra brochure-style static website revamp",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "lint": "eslint . --ext .js,.mjs",
+    "format": "prettier . --write",
+    "format:check": "prettier . --check",
+    "assets:prepare": "node scripts/prepare-assets.mjs"
+  },
+  "keywords": [
+    "static-site",
+    "vite",
+    "brochure-site",
+    "cloudflare-pages"
+  ],
+  "author": "The Green Mantra",
+  "license": "ISC",
+  "devDependencies": {
+    "eslint": "^8.57.0",
+    "eslint-config-prettier": "^10.1.8",
+    "prettier": "^3.8.1",
+    "vite": "^7.3.1"
+  },
+  "dependencies": {
+    "sharp": "^0.34.5"
+  }
+}
