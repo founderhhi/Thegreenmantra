@@ -1,0 +1,83 @@
+# The Green Mantra Website Revamp
+
+A static, brochure-style revamp of The Green Mantra website built with Vite multi-page architecture.
+
+## Pages
+
+- `index.html` (Home)
+- `about-us.html` (About)
+- `products.html` (Products)
+- `projects.html` (Projects)
+- `contact-us.html` (Contact)
+
+## Tech Stack
+
+- Vite (MPA)
+- Vanilla HTML/CSS/JS
+- Data-driven content from `src/content/site-content.json`
+- Free static form endpoint support (`VITE_FORM_ENDPOINT`)
+
+## Local Development
+
+1. Install dependencies:
+
+```bash
+npm install
+```
+
+2. Prepare optimized assets (WebP + placeholders):
+
+```bash
+npm run assets:prepare
+```
+
+3. Start dev server:
+
+```bash
+npm run dev
+```
+
+4. Build production output:
+
+```bash
+npm run build
+```
+
+5. Preview production build locally:
+
+```bash
+npm run preview
+```
+
+## Quality Scripts
+
+```bash
+npm run lint
+npm run format
+npm run format:check
+```
+
+## Environment Variables
+
+Copy `.env.example` to `.env` and update values:
+
+- `VITE_FORM_ENDPOINT`: contact form POST endpoint.
+  - Example for free FormSubmit AJAX mode:
+    - `https://formsubmit.co/ajax/your-email@example.com`
+
+## Asset Pipeline
+
+- Source reference files: `Ref For design and assets/`
+- Generated site assets:
+  - `public/assets/brand/`
+  - `public/assets/brochure/`
+  - `public/assets/products/`
+  - `public/assets/placeholders/`
+
+Asset script: `scripts/prepare-assets.mjs`
+
+## Notes
+
+- Site intentionally keeps a single primary CTA: `Contact Us`.
+- Contact form submit button is fixed to `Send`.
+- Missing brochure product visuals are tracked in `CONTENT.md` and represented by placeholders while keeping build passing.
