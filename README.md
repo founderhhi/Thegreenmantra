@@ -56,6 +56,16 @@ npm run format
 npm run format:check
 ```
 
+## Cloudflare Deploy
+
+- `wrangler.jsonc` is configured to publish static assets from `dist`.
+- Build + deploy:
+
+```bash
+npm run build
+npx wrangler deploy
+```
+
 ## Environment Variables
 
 Copy `.env.example` to `.env` and update values:

@@ -1,6 +1,6 @@
 # DEPLOYMENT.md
 
-This project deploys as a static site on Cloudflare Pages.
+This project deploys as a static site on Cloudflare.
 
 ## 1. Prerequisites
 
@@ -25,7 +25,36 @@ Set in Pages project settings -> Variables:
 
 - `VITE_FORM_ENDPOINT` = your form endpoint (for example FormSubmit AJAX endpoint)
 
-## 4. Optional CLI Deploy
+## 4. Wrangler Deploy (Static Assets)
+
+This repository includes `wrangler.jsonc` configured for static asset deploy from `dist`:
+
+```jsonc
+{
+  "name": "site-mirage",
+  "compatibility_date": "2026-02-08",
+  "assets": {
+    "directory": "./dist"
+  }
+}
+```
+
+If your platform runs `npx wrangler deploy`, this config is what prevents the
+`Missing entry-point to Worker script or to assets directory` error.
+
+Authenticate first:
+
+```bash
+npx wrangler whoami
+```
+
+Deploy:
+
+```bash
+npx wrangler deploy
+```
+
+## 5. Optional Pages CLI Deploy
 
 Authenticate:
 
@@ -39,7 +68,7 @@ Direct deploy:
 npx wrangler pages deploy dist --project-name=<your-project-name>
 ```
 
-## 5. Custom Domain + DNS
+## 6. Custom Domain + DNS
 
 ### If domain is on Cloudflare
 
@@ -54,14 +83,14 @@ npx wrangler pages deploy dist --project-name=<your-project-name>
    - Typical pattern: `www` CNAME to `<project>.pages.dev`
    - Root/apex domain setup follows Cloudflare-provided target and flattening guidance.
 
-## 6. HTTPS
+## 7. HTTPS
 
 - Cloudflare Pages provisions SSL automatically.
 - Verify in Cloudflare dashboard -> SSL/TLS:
   - Encryption mode: `Full` (or `Full (strict)` if origin cert setup requires it)
   - Keep `Always Use HTTPS` enabled.
 
-## 7. Post-Deploy Checks
+## 8. Post-Deploy Checks
 
 - Verify all 5 pages load and nav links work.
 - Verify form success/error messages on Contact page.
