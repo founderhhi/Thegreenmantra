@@ -7,6 +7,20 @@ function escapeHtml(value) {
     .replaceAll("'", '&#39;');
 }
 
+function getProductAsset(product, context) {
+  if (context === 'home') {
+    return {
+      image: product.homeImage,
+      alt: product.homeAlt,
+    };
+  }
+
+  return {
+    image: product.productImage,
+    alt: product.productAlt,
+  };
+}
+
 export function renderHeader(target, { navigation, currentPath }) {
   const items = navigation
     .map((item) => {
@@ -50,27 +64,49 @@ export function renderHeader(target, { navigation, currentPath }) {
   }
 }
 
-function renderContactCard(block) {
+function renderContactCard(block, { showLogo = false, variant = 'default' } = {}) {
   const phones = block.phones
     .map((phone) => {
       const tel = phone.replace(/\s+/g, '');
-      return `<li><a href="tel:${escapeHtml(tel)}">${escapeHtml(phone)}</a></li>`;
+      return `
+        <p class="contact-meta">
+          <span aria-hidden="true">☎</span>
+          <a href="tel:${escapeHtml(tel)}">${escapeHtml(phone)}</a>
+        </p>
+      `;
     })
     .join('');
 
   const emails = block.emails
-    .map((email) => `<li><a href="mailto:${escapeHtml(email)}">${escapeHtml(email)}</a></li>`)
+    .map(
+      (email) => `
+        <p class="contact-meta">
+          <span aria-hidden="true">✉</span>
+          <a href="mailto:${escapeHtml(email)}">${escapeHtml(email)}</a>
+        </p>
+      `
+    )
     .join('');
 
+  const logo =
+    showLogo && block.logo
+      ? `<div class="contact-logo-wrap"><img class="contact-logo" src="${escapeHtml(block.logo)}" alt="${escapeHtml(block.logoAlt || block.company)}" loading="lazy" /></div>`
+      : '';
+
+  const variantClass = variant === 'footer' ? 'contact-card--footer' : '';
+  const idClass = block.id ? `contact-card--${block.id}` : '';
+  const cardClass = ['contact-card', variantClass, idClass].filter(Boolean).join(' ');
+
   return `
-    <article class="contact-card">
+    <article class="${cardClass}">
       <h3>${escapeHtml(block.title)}</h3>
       <p class="contact-company">${escapeHtml(block.company)}</p>
-      <p>${escapeHtml(block.address)}</p>
+      <p class="contact-address">${escapeHtml(block.address)}</p>
+      ${logo}
       <p class="contact-label">Phone</p>
-      <ul>${phones}</ul>
+      <div>${phones}</div>
       <p class="contact-label">Email</p>
-      <ul>${emails}</ul>
+      <div>${emails}</div>
     </article>
   `;
 }
@@ -80,7 +116,9 @@ export function renderFooter(target, { navigation, contactBlocks }) {
     .map((item) => `<li><a href="${item.href}">${escapeHtml(item.label)}</a></li>`)
     .join('');
 
-  const cards = contactBlocks.map((block) => renderContactCard(block)).join('');
+  const cards = contactBlocks
+    .map((block) => renderContactCard(block, { showLogo: true, variant: 'footer' }))
+    .join('');
 
   target.innerHTML = `
     <footer class="site-footer">
@@ -100,36 +138,61 @@ export function renderFooter(target, { navigation, contactBlocks }) {
   `;
 }
 
-export function renderProductCards(target, products, { linkToDetails = false } = {}) {
+export function renderHomeProductCards(target, products) {
   target.innerHTML = products
     .map((product) => {
-      const detailAction = linkToDetails
-        ? `<a class="card-link" href="#product-${product.id}">View details</a>`
-        : `<a class="card-link" href="products.html#product-${product.id}">View details</a>`;
-
-      const placeholderBadge = product.isPlaceholder
-        ? '<span class="asset-tag">Image placeholder</span>'
-        : '';
-
+      const asset = getProductAsset(product, 'home');
       return `
         <article class="product-card reveal">
           <img
-            src="${product.image}"
+            src="${asset.image}"
             loading="lazy"
             width="860"
             height="560"
-            alt="${escapeHtml(product.alt)}"
+            alt="${escapeHtml(asset.alt)}"
           />
           <div class="card-body">
             <h3>${escapeHtml(product.name)}</h3>
             <p>${escapeHtml(product.summary)}</p>
-            ${placeholderBadge}
-            ${detailAction}
+            <a class="card-link" href="products.html#product-${product.id}">View details</a>
           </div>
         </article>
       `;
     })
     .join('');
+}
+
+export function renderProductShowcase(target, products) {
+  const slides = products
+    .map((product) => {
+      const asset = getProductAsset(product, 'product');
+      return `
+        <article class="carousel-slide">
+          <img src="${asset.image}" loading="lazy" width="860" height="560" alt="${escapeHtml(asset.alt)}" />
+          <div class="card-body">
+            <h3>${escapeHtml(product.name)}</h3>
+            <p>${escapeHtml(product.summary)}</p>
+            <a class="card-link" href="#product-${product.id}">View details</a>
+          </div>
+        </article>
+      `;
+    })
+    .join('');
+
+  target.innerHTML = `
+    <section class="product-carousel reveal" data-carousel>
+      <div class="carousel-viewport">
+        <div class="carousel-track">
+          ${slides}
+        </div>
+      </div>
+      <div class="carousel-controls">
+        <button class="carousel-btn" type="button" data-carousel-prev aria-label="Previous products">←</button>
+        <div class="carousel-dots" data-carousel-dots aria-label="Product carousel pages"></div>
+        <button class="carousel-btn" type="button" data-carousel-next aria-label="Next products">→</button>
+      </div>
+    </section>
+  `;
 }
 
 export function renderProofItems(target, items) {
@@ -147,7 +210,7 @@ export function renderApproachSteps(target, steps) {
     .map(
       (step, index) => `
       <article class="step-card reveal">
-        <p class="step-index">0${index + 1}</p>
+        <p class="step-index">${String(index + 1).padStart(2, '0')}</p>
         <h3>${escapeHtml(step.title)}</h3>
         <p>${escapeHtml(step.description)}</p>
       </article>
@@ -159,10 +222,8 @@ export function renderApproachSteps(target, steps) {
 export function renderProductDetails(target, products) {
   target.innerHTML = products
     .map((product) => {
+      const asset = getProductAsset(product, 'product');
       const bullets = product.bullets.map((bullet) => `<li>${escapeHtml(bullet)}</li>`).join('');
-      const placeholderNote = product.isPlaceholder
-        ? '<p class="todo-note">TODO: replace placeholder with brochure-export image for this product.</p>'
-        : '';
 
       return `
         <article id="product-${product.id}" class="product-detail reveal">
@@ -172,11 +233,10 @@ export function renderProductDetails(target, products) {
           </button>
           <div id="detail-panel-${product.id}" class="detail-panel" hidden>
             <div class="detail-layout">
-              <img src="${product.image}" loading="lazy" width="860" height="560" alt="${escapeHtml(product.alt)}" />
+              <img src="${asset.image}" loading="lazy" width="860" height="560" alt="${escapeHtml(asset.alt)}" />
               <div>
                 <p>${escapeHtml(product.detail)}</p>
                 <ul>${bullets}</ul>
-                ${placeholderNote}
               </div>
             </div>
           </div>
@@ -186,15 +246,15 @@ export function renderProductDetails(target, products) {
     .join('');
 }
 
-export function renderProjectBlocks(target, projects) {
-  target.innerHTML = projects
+export function renderInitiativeCards(target, initiatives) {
+  target.innerHTML = initiatives
     .map(
-      (project) => `
-      <article class="project-block reveal">
-        <img src="${project.image}" loading="lazy" width="1100" height="700" alt="${escapeHtml(project.alt)}" />
-        <div class="project-copy">
-          <h3>${escapeHtml(project.title)}</h3>
-          <p>${escapeHtml(project.description)}</p>
+      (item) => `
+      <article class="initiative-card reveal">
+        <img src="${item.image}" loading="lazy" width="1100" height="700" alt="${escapeHtml(item.alt)}" />
+        <div class="initiative-copy">
+          <h3>${escapeHtml(item.title)}</h3>
+          <p>${escapeHtml(item.description)}</p>
         </div>
       </article>
     `
@@ -202,6 +262,56 @@ export function renderProjectBlocks(target, projects) {
     .join('');
 }
 
-export function renderContactCards(target, contactBlocks) {
-  target.innerHTML = contactBlocks.map((block) => renderContactCard(block)).join('');
+export function renderCertificationBoards(target, certifications) {
+  target.innerHTML = certifications
+    .map(
+      (item) => `
+      <article class="certification-card reveal">
+        <img src="${item.image}" loading="lazy" width="700" height="520" alt="${escapeHtml(item.alt)}" />
+        <h3>${escapeHtml(item.name)}</h3>
+      </article>
+    `
+    )
+    .join('');
+}
+
+export function renderOfficeMaps(target, mapItems, contactBlocks) {
+  const contactById = new Map(contactBlocks.map((block) => [block.id, block]));
+
+  target.innerHTML = mapItems
+    .map((mapItem) => {
+      const block = contactById.get(mapItem.id);
+      if (!block) {
+        return '';
+      }
+
+      const query = encodeURIComponent(block.address);
+      const embedUrl = `https://www.google.com/maps?q=${query}&output=embed`;
+      const openUrl = `https://www.google.com/maps/search/?api=1&query=${query}`;
+
+      return `
+        <article class="map-card reveal">
+          <h3>${escapeHtml(mapItem.title)}</h3>
+          <iframe
+            class="map-frame"
+            src="${embedUrl}"
+            loading="lazy"
+            referrerpolicy="no-referrer-when-downgrade"
+            title="${escapeHtml(mapItem.title)} map"
+          ></iframe>
+          <p class="map-address">${escapeHtml(block.address)}</p>
+          <p class="map-fallback">
+            <a href="${openUrl}" target="_blank" rel="noopener noreferrer">Open in Google Maps</a>
+          </p>
+        </article>
+      `;
+    })
+    .join('');
+}
+
+export function renderContactCards(target, contactBlocks, options = {}) {
+  const { showLogos = false } = options;
+  target.innerHTML = contactBlocks
+    .map((block) => renderContactCard(block, { showLogo: showLogos }))
+    .join('');
 }

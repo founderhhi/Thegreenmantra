@@ -10,7 +10,6 @@ export default defineConfig({
         home: resolve(__dirname, 'index.html'),
         about: resolve(__dirname, 'about-us.html'),
         products: resolve(__dirname, 'products.html'),
-        projects: resolve(__dirname, 'projects.html'),
         contact: resolve(__dirname, 'contact-us.html'),
       },
     },

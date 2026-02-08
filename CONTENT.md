@@ -1,6 +1,6 @@
 # CONTENT.md
 
-This file explains how to update copy, logos, images, and contact details without changing core layout code.
+This file explains where editable copy and assets live after the revamp.
 
 ## 1. Main Content File
 
@@ -12,83 +12,64 @@ This controls:
 
 - Navigation labels/paths
 - CTA labels (`Contact Us`, `Send`)
-- Home/About/Products/Projects/Contact text
-- Product cards and detail sections
-- Asia/Africa contact blocks
-- Proof strip bullets
+- Home/About/Products/Contact copy
+- Product images (`homeImage` and `productImage`)
+- About `Our Journey` and `Key Initiatives`
+- Regional contact cards (Asia/Africa)
+- Products-only proof strip and certification boards
+- Contact-page office maps (`officeMaps`)
 
-## 2. File/Asset Naming Rules
+## 2. Product Image Fields
 
-Use lowercase kebab-case names.
+Each product in `products[]` now uses:
 
-Examples:
+- `homeImage`, `homeAlt`
+- `productImage`, `productAlt`
 
-- Good: `bio-pack-v2.webp`
-- Good: `projects-africa-initiative.webp`
-- Avoid: spaces, uppercase, special characters
+`BIO-PACK` and `BIO-RESINE` currently use generated branded visuals:
 
-## 3. Where to Put Images
+- `public/assets/products/bio-pack-generated.webp`
+- `public/assets/products/bio-resine-generated.webp`
 
-- Brand/logo assets: `public/assets/brand/`
-- Brochure section visuals: `public/assets/brochure/`
-- Product card visuals: `public/assets/products/`
-- Temporary placeholders: `public/assets/placeholders/`
+## 3. Regional Contact Cards
 
-## 4. How to Update Logo
+`contactBlocks[]` supports optional logo metadata:
 
-1. Add new logo file in `public/assets/brand/`.
-2. Keep filename consistent or update references in:
-   - `src/js/components.js` (header logo path)
+- `logo`
+- `logoAlt`
 
-Preferred names:
+Footer cards display logos. Contact page cards intentionally do not.
 
-- `logo.png` (source)
-- `logo.webp` (optimized)
+## 4. Products Certifications Section
 
-## 5. How to Update Product Copy
+Products page uses:
 
-In `src/content/site-content.json`, update each object inside `products`:
+- `productsProofItems[]`
+- `productCertifications[]`
+
+Each certification object:
 
 - `name`
-- `summary`
-- `detail`
-- `bullets`
 - `image`
 - `alt`
 
-## 6. How to Update Contact Info
+## 5. Asset Locations
 
-In `src/content/site-content.json`, update `contactBlocks`:
+- Brand/header logo: `public/assets/brand/`
+- Home visuals: `public/assets/home/`
+- About visuals: `public/assets/about/`
+- Product visuals: `public/assets/products/`
+- Certification boards: `public/assets/certifications/`
+- Regional logos: `public/assets/regional/`
 
-- `title`
-- `company`
-- `address`
-- `phones`
-- `emails`
+## 6. Regenerate Optimized Assets
 
-## 7. Contact Form Endpoint (Free Alternative)
-
-Set `VITE_FORM_ENDPOINT` in `.env` or Cloudflare Pages environment variables.
-
-Example:
-
-- `https://formsubmit.co/ajax/your-email@example.com`
-
-## 8. Regenerate Optimized Assets
-
-If you replace reference images and want fresh WebP outputs:
+When reference images change, regenerate all output assets:
 
 ```bash
 npm run assets:prepare
 ```
 
-## 9. Current TODO (Missing Brochure Product Images)
+Source files are read from:
 
-The following products currently use generated placeholders and should be replaced with brochure/PDF-export visuals:
-
-1. `BIO-PACK`
-   - Current file: `public/assets/products/bio-pack.webp`
-2. `BIO-RESINE`
-   - Current file: `public/assets/products/bio-resine.webp`
-
-After adding final images, update matching paths in `src/content/site-content.json`.
+- `Ref For design and assets/TGM-Pics/`

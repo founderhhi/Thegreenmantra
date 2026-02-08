@@ -7,7 +7,6 @@ A static, brochure-style revamp of The Green Mantra website built with Vite mult
 - `index.html` (Home)
 - `about-us.html` (About)
 - `products.html` (Products)
-- `projects.html` (Projects)
 - `contact-us.html` (Contact)
 
 ## Tech Stack
@@ -25,7 +24,7 @@ A static, brochure-style revamp of The Green Mantra website built with Vite mult
 npm install
 ```
 
-2. Prepare optimized assets (WebP + placeholders):
+2. Prepare optimized assets (WebP):
 
 ```bash
 npm run assets:prepare
@@ -67,12 +66,14 @@ Copy `.env.example` to `.env` and update values:
 
 ## Asset Pipeline
 
-- Source reference files: `Ref For design and assets/`
+- Source reference files: `Ref For design and assets/TGM-Pics/`
 - Generated site assets:
   - `public/assets/brand/`
-  - `public/assets/brochure/`
+  - `public/assets/home/`
+  - `public/assets/about/`
   - `public/assets/products/`
-  - `public/assets/placeholders/`
+  - `public/assets/certifications/`
+  - `public/assets/regional/`
 
 Asset script: `scripts/prepare-assets.mjs`
 
@@ -80,4 +81,4 @@ Asset script: `scripts/prepare-assets.mjs`
 
 - Site intentionally keeps a single primary CTA: `Contact Us`.
 - Contact form submit button is fixed to `Send`.
-- Missing brochure product visuals are tracked in `CONTENT.md` and represented by placeholders while keeping build passing.
+- Projects content is merged into `about-us.html` under `Our Journey` and `Key Initiatives`.
