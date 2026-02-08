@@ -1,51 +1,19 @@
 # DEPLOYMENT.md
 
-This project deploys as a static site on Cloudflare.
+This project deploys to **Cloudflare Workers** as static assets from `dist`.
 
 ## 1. Prerequisites
 
 - Cloudflare account
-- Repository pushed to GitHub (recommended) or direct deploy using Wrangler
-- Node 22+ locally
+- GitHub repository connected to Cloudflare Workers Builds (or local Wrangler auth)
+- Domain `thegreenmantra.com` added to Cloudflare DNS
 
-## 2. Build Settings (Cloudflare Pages)
+## 2. Build + Deploy Worker
 
-In Cloudflare dashboard:
-
-1. Go to **Workers & Pages** -> **Create** -> **Pages**.
-2. Connect your Git repository.
-3. Configure:
-   - **Build command**: `npm run build`
-   - **Build output directory**: `dist`
-   - **Node version**: `22`
-
-## 3. Environment Variables
-
-Set in Pages project settings -> Variables:
-
-- `VITE_FORM_ENDPOINT` = your form endpoint (for example FormSubmit AJAX endpoint)
-
-## 4. Wrangler Deploy (Static Assets)
-
-This repository includes `wrangler.jsonc` configured for static asset deploy from `dist`:
-
-```jsonc
-{
-  "name": "site-mirage",
-  "compatibility_date": "2026-02-08",
-  "assets": {
-    "directory": "./dist"
-  }
-}
-```
-
-If your platform runs `npx wrangler deploy`, this config is what prevents the
-`Missing entry-point to Worker script or to assets directory` error.
-
-Authenticate first:
+Build:
 
 ```bash
-npx wrangler whoami
+npm run build
 ```
 
 Deploy:
@@ -54,45 +22,48 @@ Deploy:
 npx wrangler deploy
 ```
 
-## 5. Optional Pages CLI Deploy
+`wrangler.jsonc` is configured to upload static assets from `./dist`.
 
-Authenticate:
+## 3. Bind Custom Domain (Worker)
+
+In Cloudflare dashboard:
+
+1. Go to **Workers & Pages** -> **thegreenmantra**.
+2. Open **Settings** -> **Domains & Routes**.
+3. Add custom domains:
+   - `thegreenmantra.com`
+   - `www.thegreenmantra.com`
+
+## 4. DNS and Nameservers
+
+Because DNS is managed externally at registrar level, ensure nameservers for
+`thegreenmantra.com` point to the Cloudflare nameservers assigned to your zone.
+
+Check:
 
 ```bash
-npx wrangler whoami
+nslookup -type=NS thegreenmantra.com
 ```
 
-Direct deploy:
+## 5. Canonical URL Rule (`www` -> apex)
 
-```bash
-npx wrangler pages deploy dist --project-name=<your-project-name>
-```
+In Cloudflare dashboard -> **Rules** -> **Redirect Rules**, add a permanent rule:
 
-## 6. Custom Domain + DNS
+- Source: `www.thegreenmantra.com/*`
+- Destination: `https://thegreenmantra.com/$1`
+- Status code: `301`
 
-### If domain is on Cloudflare
+## 6. SSL/TLS
 
-1. Open your Pages project -> **Custom domains** -> **Set up a custom domain**.
-2. Add root domain (`example.com`) and optional `www.example.com`.
-3. Cloudflare will create/guide DNS records automatically.
+In Cloudflare dashboard -> **SSL/TLS**:
 
-### If domain is with external registrar
+- Ensure active certificates for `thegreenmantra.com` and `www.thegreenmantra.com`
+- Enable **Always Use HTTPS**
+- Optional after stable rollout: enable HSTS
 
-1. Add domain in Cloudflare Pages first.
-2. Create DNS records at your provider as instructed by Cloudflare.
-   - Typical pattern: `www` CNAME to `<project>.pages.dev`
-   - Root/apex domain setup follows Cloudflare-provided target and flattening guidance.
+## 7. Verification Checklist
 
-## 7. HTTPS
-
-- Cloudflare Pages provisions SSL automatically.
-- Verify in Cloudflare dashboard -> SSL/TLS:
-  - Encryption mode: `Full` (or `Full (strict)` if origin cert setup requires it)
-  - Keep `Always Use HTTPS` enabled.
-
-## 8. Post-Deploy Checks
-
-- Verify all 5 pages load and nav links work.
-- Verify form success/error messages on Contact page.
-- Verify image loading and mobile responsiveness.
-- Verify no 404s for `/assets/*` resources.
+1. Worker deploy succeeds with no name mismatch warning.
+2. `https://thegreenmantra.com` serves the latest site.
+3. `https://www.thegreenmantra.com` returns `301` to apex.
+4. `https://thegreenmantra.founder-994.workers.dev` still works as fallback.
